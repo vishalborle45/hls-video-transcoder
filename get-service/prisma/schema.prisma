@@ -1,0 +1,34 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+model Video {
+  id             Int                @id @default(autoincrement())
+  key            String
+  title          String?
+  status         String             @default("pending")
+  createdAt      DateTime           @default(now())
+  masterPlaylist String?            // ✅ Added for final HLS playlist location
+  resolutions    VideoResolution[]
+}
+
+model VideoResolution {
+  id         Int      @id @default(autoincrement())
+  resolution String
+  s3Key      String
+  video      Video    @relation(fields: [videoId], references: [id])
+  videoId    Int
+
+  @@index([videoId]) // ✅ Speeds up lookups
+}
+

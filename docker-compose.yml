@@ -1,0 +1,35 @@
+version: "3.9"
+
+networks:
+  video_trans_net:
+    driver: bridge
+
+services:
+  frontend:
+    image: vishalborle/hls-frontend:latest
+    ports:
+      - "80:80"
+    networks:
+      - video_trans_net
+    depends_on:
+      - get-service
+    restart: unless-stopped
+  get-service:
+    image: vishalborle/hls-get-service:latest
+    ports:
+      - "4000:4000"
+    networks:
+      - video_trans_net
+    restart: unless-stopped
+  upload-service:
+    image: vishalborle/hls-upload-service:latest
+    ports:
+      - "3000:3000"
+    networks:
+      - video_trans_net
+    restart: unless-stopped
+  transcoding-service:
+    image: vishalborle/hls-transcoding-service:latest
+    networks:
+      - video_trans_net
+    restart: unless-stopped
