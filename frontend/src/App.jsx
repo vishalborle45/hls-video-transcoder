@@ -3,7 +3,9 @@ import Hls from "hls.js";
 import axios from "axios";
 
 function App() {
-  const API_BASE = "http://localhost:4000";
+  const GET_SERVER = import.meta.env.VITE_GET_SERVER
+  const UPLOAD_SERVER = import.meta.env.VITE_UPLOAD_SERVER
+
 
   // Upload state
   const [file, setFile] = useState(null);
@@ -39,7 +41,7 @@ function App() {
   /** Fetch videos from backend **/
   const fetchVideos = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/videos`);
+      const res = await axios.get(`${GET_SERVER}/videos`);
       setVideos(res.data);
     } catch (err) {
       console.error("❌ Failed to fetch videos", err);
@@ -64,7 +66,7 @@ const handleUpload = async () => {
 
     // Step 1: Get signed upload URL from backend
     const { data: uploadData } = await axios.post(
-      "http://localhost:3000/upload",
+      `${UPLOAD_SERVER}/upload`,
       { key, title },
       { headers: { "Content-Type": "application/json" } }
     );
@@ -88,7 +90,7 @@ const handleUpload = async () => {
 
     // Step 3: Notify backend to process the uploaded file
     await axios.post(
-      `${"http://localhost:3000"}/queue-job`,
+      `${UPLOAD_SERVER}/queue-job`,
       { videoId: uploadData.videoId, key },
       { headers: { "Content-Type": "application/json" } }
     );
@@ -121,7 +123,7 @@ const handleUpload = async () => {
     cleanupHls();
 
     try {
-      const res = await axios.get(`${API_BASE}/videos/${video.id}/master`, {
+      const res = await axios.get(`${GET_SERVER}/videos/${video.id}/master`, {
         responseType: "text",
       });
       const masterText = res.data;
